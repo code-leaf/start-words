@@ -1,13 +1,18 @@
-/* app/card-ui/flash-card.css */
+/* styles/card-ui/flash-card.css */
 
+/* カード全体を包むコンテナ（3D視点とレスポンシブ幅の基準を設定） */
 .card-container {
+  width: 100%;
+  max-width: 600px;
   margin: auto 0;
   perspective: 800px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 }
 
+/* 単語カード本体（SP幅デフォルト設定） */
 .card {
   position: relative;
   width: 90%;
@@ -20,16 +25,19 @@
   margin: 0 auto;
 }
 
+/* カード切り替え時の縮小・フェードアウトアニメーション */
 .card.switching {
   transform: scale(0.85);
   opacity: 0;
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
+/* カード裏面反転時の3D回転 */
 .card.is-flipped {
   transform: rotateY(180deg);
 }
 
+/* カード表面および裏面の共通スタイル */
 .back,
 .front {
   position: absolute;
@@ -46,17 +54,20 @@
   gap: 8px;
 }
 
+/* 裏面（解答）スタイル */
 .back {
   transform: rotateY(180deg);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
+/* 表面（問題）スタイル */
 .front {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
+/* 表面のメインテキスト */
 .front .text {
   font-size: 4rem;
   font-weight: 500;
@@ -64,6 +75,7 @@
   letter-spacing: -0.01em;
 }
 
+/* カード左上のラベルテキスト */
 .text-top {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
@@ -73,6 +85,7 @@
   left: 1.4em;
 }
 
+/* カード中央のテキスト */
 .text-center {
   font-size: 3.5rem;
   font-weight: 500;
@@ -80,6 +93,7 @@
   text-align: center;
 }
 
+/* PC幅（769px以上）時のレイアウト調整 */
 @media screen and (min-width: 769px) {
   .card-container {
     margin: 30px 0;
@@ -87,5 +101,6 @@
   .card {
     width: 600px;
     height: 332px;
+    max-height: none;
   }
 }

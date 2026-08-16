@@ -7,8 +7,8 @@ import { Card } from "@/types/card";
 import { FlashCard } from "@/components/FlashCard";
 import { BB8Toggle } from "@/components/BB8Toggle";
 import { CardNavigation } from "@/components/CardNavigation";
-import "./bb8-toggle.css";
-import "./flash-card.css";
+import "@/styles/card-ui/bb8-toggle.css";
+import "@/styles/card-ui/flash-card.css";
 
 /**
  * 共通カードUI検証用ページ (/card-ui)
@@ -73,8 +73,14 @@ export default function CardUIPage() {
     }
   };
 
-  // 最終カードに到達しているかどうかの判定（最後のカードでボタンを非活性化）
-  const isLastCard = currentIndex >= cards.length - 1;
+  // 最初からやり直すリトライ処理
+  const handleRetry = () => {
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
+
+  // 最終カードに到達しているかどうかの判定
+  const isLastCard = cards.length > 0 && currentIndex >= cards.length - 1;
 
   // 現在表示対象のカードデータ
   const currentCard = cards[currentIndex];
@@ -137,11 +143,12 @@ export default function CardUIPage() {
               />
             </div>
 
-            {/* 3. ナビゲーション（次のカードボタン） */}
+            {/* 3. ナビゲーション（次のカード／また挑戦する！ボタン） */}
             <div className="mt-2">
               <CardNavigation
+                isLastCard={isLastCard}
                 onNext={handleNextCard}
-                disabled={isLastCard}
+                onRetry={handleRetry}
               />
             </div>
           </div>
