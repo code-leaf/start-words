@@ -1,0 +1,91 @@
+/* app/card-ui/flash-card.css */
+
+.card-container {
+  margin: auto 0;
+  perspective: 800px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card {
+  position: relative;
+  width: 90%;
+  height: 25vh;
+  max-height: 250px;
+  border-radius: 20px;
+  transition: 0.65s all cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  user-select: none;
+  margin: 0 auto;
+}
+
+.card.switching {
+  transform: scale(0.85);
+  opacity: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.back,
+.front {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  inset: 0;
+  border-radius: 20px;
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.back {
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.front {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.front .text {
+  font-size: 4rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+.text-top {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #aaa;
+  position: absolute;
+  top: 1.2em;
+  left: 1.4em;
+}
+
+.text-center {
+  font-size: 3.5rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+@media screen and (min-width: 769px) {
+  .card-container {
+    margin: 30px 0;
+  }
+  .card {
+    width: 600px;
+    height: 332px;
+  }
+}
