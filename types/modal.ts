@@ -37,7 +37,10 @@ export type ModalContentConfig = {
  * モーダルの種別（識別子）
  *
  * 拡張方針:
- * - 現時点では単語学習の自己採点用 'score' のみを定義
- * - 将来的にカード登録完了 'registerSuccess' や確認ダイアログなどをユニオン型へ追加可能
+ * - 種別を追加した場合、modalContents.ts 側も同時に同じキーを追加する必要がある
+ *   （Record<ModalType, ModalContentConfig> により型レベルで網羅性を強制）
+ * - 'score'    : word学習の自己採点（ユーザーが正誤を自己申告するモーダル）
+ * - 'errataCorrect'   : errata学習の正解通知（自動判定結果が正解だった場合）
+ * - 'errataIncorrect' : errata学習の不正解通知（自動判定結果が不正解だった場合）
  */
-export type ModalType = "score";
+export type ModalType = "score" | "errataCorrect" | "errataIncorrect";
