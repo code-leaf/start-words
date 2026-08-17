@@ -84,6 +84,59 @@ export async function insertCard(
 }
 
 /**
+ * PostgreSQLのILIKE演算子においてワイルドカードとして解釈される
+ * `%`・`_`・`\` をエスケープします。
+ *
+ * なぜ必要か:
+ * - 重複判定にはILIKE（大文字小文字を無視した比較）を使用しますが、
+ *   ILIKEはパターンマッチ演算子のため、front_textに`%`や`_`が含まれると
+ *   ユーザーの意図しない部分一致（例: "a_ple"が"apple"にもマッチする等）が
+ *   発生してしまいます。事前にエスケープすることで、常に「完全一致」の
+ *   大文字小文字無視比較として機能させます。
+ */
+function escapeIlikeWildcards(text: string): string {
+  // バックスラッシュ自体のエスケープを最初に行い、後続の置換で二重エスケープしないようにする
+  return text.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
+/**
+ * ログイン中ユーザー自身の登録済みカードの中に、指定した表テキストと同じものが存在するか確認します。
+ *
+ * 重複判定はfront_textのみを対象とし、back_textは条件に含めません。
+ * また、`.eq('user_id', ...)` のような絞り込みを明示的に行わなくても、
+ * RLSによりログイン中ユーザー自身のカードのみが検索対象となるため、
+ * 他ユーザーの同一front_textとは重複しません。
+ *
+ * 大文字・小文字の扱い:
+ * - 重複判定では大文字・小文字を区別しません（apple / Apple / APPLE は同一とみなす）。
+ * - `.ilike()` によりPostgreSQL側で大文字小文字を無視した完全一致検索を行うため、
+ *   JavaScript側で全件取得してから比較する必要がなく、RLSも通常どおり適用されます。
+ * - DBへ保存する値（front_text本体）は今回の判定と無関係で、入力値をそのまま保存します。
+ */
+export async function checkDuplicateFrontText(
+  supabase: SupabaseClient,
+  frontText: string
+): Promise<{ isDuplicate: boolean; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from('cards')
+      .select('id')
+      .ilike('front_text', escapeIlikeWildcards(frontText))
+      .limit(1);
+
+    if (error) {
+      console.error('重複確認エラー:', error);
+      return { isDuplicate: false, error: error.message };
+    }
+
+    return { isDuplicate: (data?.length ?? 0) > 0, error: null };
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : '不明なエラー';
+    return { isDuplicate: false, error: errorMessage };
+  }
+}
+
+/**
  * カードを更新します。
  * RLSにより、他人の user_id を持つカードに対する更新は拒否されます。
  */

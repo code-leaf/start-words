@@ -42,5 +42,12 @@ export type ModalContentConfig = {
  * - 'score'    : word学習の自己採点（ユーザーが正誤を自己申告するモーダル）
  * - 'errataCorrect'   : errata学習の正解通知（自動判定結果が正解だった場合）
  * - 'errataIncorrect' : errata学習の不正解通知（自動判定結果が不正解だった場合）
+ * - 'registerSuccess'   : 単語登録画面のカード登録成功通知
+ * - 'registerDuplicate' : 単語登録画面での表テキスト重複通知（ユーザー自身の登録済みカードと重複した場合）
  */
-export type ModalType = "score" | "errataCorrect" | "errataIncorrect";
+export type ModalType =
+  | "score"
+  | "errataCorrect"
+  | "errataIncorrect"
+  | "registerSuccess"
+  | "registerDuplicate";

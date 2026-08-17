@@ -47,4 +47,26 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
     ],
     closeOnOverlayClick: true,
   },
+
+  // 単語登録画面のカード登録成功通知用モーダル定義
+  // 閉じた後に入力欄をクリアする処理は、openModal呼び出し側（useCardRegister）のonActionで行う
+  registerSuccess: {
+    title: "登録しました",
+    message: "カードを登録しました。続けて次のカードを登録できます。",
+    buttons: [
+      { label: "閉じる", colorVariant: "success", actionKey: "close" },
+    ],
+    closeOnOverlayClick: true,
+  },
+
+  // 単語登録画面での表テキスト重複通知用モーダル定義
+  // 重複時は入力値を保持したいため、呼び出し側ではonActionを渡さずクリアしない
+  registerDuplicate: {
+    title: "登録できません",
+    message: "同じ「表」の単語がすでに登録されています。",
+    buttons: [
+      { label: "閉じる", colorVariant: "danger", actionKey: "close" },
+    ],
+    closeOnOverlayClick: true,
+  },
 };
