@@ -1,9 +1,14 @@
 /**
  * カード (cards) テーブルの型定義
- * 
+ *
  * Supabaseの PostgreSQL `cards` テーブルに対応するTypeScript型です。
  * アプリケーション全体で型安全にカードデータを扱うために使用します。
+ *
+ * なお、Supabaseクライアントに渡す `Database` 型はアプリ全体で1つに統一する必要があるため、
+ * profiles テーブルの型（types/profile.ts）もこのファイル内でDatabase型へ合成しています。
  */
+
+import { Profile, InsertProfile, UpdateProfile } from "./profile";
 
 export interface Card {
   /** カードのユニークID (UUID) */
@@ -53,6 +58,20 @@ export type Database = {
             foreignKeyName: "cards_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      profiles: {
+        Row: Profile;
+        Insert: InsertProfile;
+        Update: UpdateProfile;
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey";
+            columns: ["id"];
+            isOneToOne: true;
             referencedRelation: "users";
             referencedColumns: ["id"];
           }

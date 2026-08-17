@@ -40,3 +40,11 @@ VALUES
 ```
 
 または、Webアプリ画面の「検証用テストログイン」からテストユーザーでログイン後、画面上の「テスト用カードを追加」ボタンをクリックしても登録できます。
+
+## 6. MVP 7: profiles テーブル & 自動作成トリガーの作成
+1. Supabase Dashboard の **SQL Editor** を開きます。
+2. `supabase/profiles_schema.sql` の内容をコピー＆ペーストして実行（Run）します。
+3. `profiles` テーブル、RLSポリシー（SELECT / INSERT）、および `auth.users` への新規登録時に
+   `profiles` を自動作成するトリガー `on_auth_user_created` が作成されたことを確認します。
+4. `/signup` からユーザー登録すると、`auth.users` と1対1で対応する `profiles` 行
+   （`id`, `username`, `created_at`）が自動的に作成されます。
