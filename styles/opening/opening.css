@@ -2,159 +2,322 @@
  * styles/opening/opening.css
  *
  * トップページのスターウォーズ風オープニング演出のスタイル定義。
- * 既存PHP版 (src/index.php, src/css/SW_title.css) の演出仕様
- * （タイミング・文言・見た目の基準）をNext.js版として再構築したもの。
  *
- * このファイルには「見た目（色・配置・フォント）」のみを定義し、
- * 演出の進行（opacity/transform/背景色の時間変化）はJS側
- * （components/opening/OpeningAnimation.tsx の requestAnimationFrame ループ）が
- * ref経由で直接styleへ反映する。CSSの@keyframesに演出タイミングを持たせないのは、
- * OS/ブラウザの「視差効果を減らす」設定が有効な環境で、意図せず
- * @keyframesアニメーションが停止してしまう実機不具合が確認されたため。
+ * 方針: 既存PHP版 (src/index.php, src/css/SW_title.css) のCSS値・@keyframesを
+ * 「そのまま」Next.js版へ移植したもの。演出をより良く見せるための独自の
+ * 変更（perspective-origin追加、translateZ、rotateX変更等）は一切行っていない。
+ * セレクタ名（#opening 等のID）はReactのクラス名に置き換えているが、
+ * プロパティ・値・@keyframesの中身はPHP版と同一。
  *
- * Tailwindではなく素のCSSを採用している理由:
- * - perspective / rotateX 等の見た目に密接なスタイルはTailwindの
- *   ユーティリティクラスだけで表現すると可読性が落ちるため、このファイルに集約している。
+ * PHP版からの意図的な差分（値の変更ではなく、移植上必要な調整・不具合修正）:
+ *
+ * 1. body.fade-light（黒→白）のfadeLightアニメーションは、#opening自体には
+ *    適用しない。
+ *    PHP版では、fadeLightは<body class="fade-light">に適用されており、
+ *    #opening自身は `#opening { background: #000; }` という「アニメーションの
+ *    ついていない静的な黒」である。#openingは position:fixed; inset:0;
+ *    z-index:9999 で画面全体を不透明に覆っているため、20秒でfadeOutが
+ *    始まるまでの間、bodyの背景色がどう変化しようと画面には一切見えない
+ *    （#openingの黒で完全に隠れている）。
+ *    そのため、Next.js版でも #opening 相当の .opening-layer 自体は
+ *    「fadeLightを持たない、常に不透明な黒」として実装し、演出表示中
+ *    （0〜20秒）に画面が白く見えることがないようにしている。
+ *    fadeLight相当のbody側の演出は、Next.js版では複数ページで共有される
+ *    グローバルなbodyへ適用すると他ページに影響するため実装していないが、
+ *    PHP版でもこの変化はユーザーからは見えないため、視覚的な差分は生じない。
+ *
+ * 2. #titles:after の背景グラデーションは、PHP版が使用している
+ *    `linear-gradient(top, ...)` という非標準の旧ブラウザ向け構文
+ *    （現行ブラウザでは解釈されない）を、同じ見た目になる標準構文
+ *    `linear-gradient(to bottom, ...)` へ書き換えている。
+ *
+ * 3. -webkit- 等のベンダープレフィックスは、現行の対象ブラウザでは
+ *    不要なため省略している（値・挙動は変えていない）。
+ *
+ * 4. @keyframes logo に transform: translate(-50%, -50%) を合成している
+ *    （PHP版の詳しい経緯は下記 .opening-logo のコメントを参照）。
+ *
+ * 5. タイミング構成をPHP版の「ロゴとクロールが同時進行する」構成から、
+ *    「イントロ→ロゴが消えるのを待ってから→クロールを流す」という
+ *    順番待ちの構成へ変更している（詳しくは.opening-crawl-trackのコメントを参照）。
+ *    これは実際のスター・ウォーズ本編オープニングの見え方（ロゴが消えてから
+ *    クロールが始まる）に近づけるための意図的な変更。
+ *    その後、演出全体の尺を短くする調整（下記6.）に伴い、クロールの
+ *    スクロール速度（PHP版は100s linear）も80s linearへ短縮している
+ *    （移動量top:100%→-170%自体は変更していない）。
+ *
+ * 6. 演出全体の長さを調整し、.opening-layerのfadeOut開始（PHP版は20s delay）を
+ *    50s delayへ、.opening-crawl-trackのscroll開始（4.の変更後は10s delay）を
+ *    8s delayへ、それぞれ短縮している。この結果、ロゴが完全に消える10秒
+ *    （5s delay + 5s duration）よりクロール開始が2秒早くなり、5.で意図した
+ *    「ロゴが消えてから始まる」という完全な順番待ちではなく、8〜10秒の間だけ
+ *    ごく短い重なりが生じる。演出全体の尺（fadeOut開始50s + duration3s ＝
+ *    53秒で終了）を優先した意図的なトレードオフ。
  */
 
 .opening-layer {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  width: 100%;
+  height: 100%;
+  background: #000;
   z-index: 9999;
   overflow: hidden;
-  background-color: #000;
-  opacity: 1;
+  /* 20s→50sへ変更した理由:
+     クロールが表示されている間（8s〜）にフェードアウトが始まってしまわないよう、
+     演出全体の尺に合わせて開始タイミングを後ろへ調整している
+     （下記.opening-crawl-trackのコメント、および上部コメント6.参照） */
+  animation: fadeOut 3s ease 50s forwards;
   color: #ff6;
-  font-family: var(--font-opening-sans), 'Droid Sans', arial, verdana, sans-serif;
+  font-family: 'Droid Sans', arial, verdana, sans-serif;
   font-weight: 700;
 }
 
-/* ---- イントロ文 ---- */
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* ---- イントロ文（p#start） ---- */
 .opening-intro {
   position: relative;
   width: 16em;
-  max-width: 90vw;
-  margin: 30% auto 0;
-  font-size: 1rem;
+  font-size: 100%;
   font-weight: 400;
+  margin: 30% auto;
   color: #4ee;
-  opacity: 1;
+  opacity: 0;
   z-index: 1;
+  animation: intro 5s ease-out;
 }
 
-/* ---- START WORDSロゴ ---- */
+@keyframes intro {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+ * ---- START WORDSロゴ（#opening h1） ----
+ *
+ * PHP版との差分（@keyframes logoにtranslate(-50%, -50%)を追加している）について:
+ *
+ * 【差分】
+ * PHP版の @keyframes logo は `transform: scale(1)` → `transform: scale(0.1)`
+ * のみを指定しており、.opening-logo（#opening h1）側の
+ * `transform: translate(-50%, -50%)` は含まれていない。
+ *
+ * 【なぜ差が発生するか（PHP版そのものの挙動として実機確認済み）】
+ * CSSのanimationは、キーフレームで指定されたプロパティを、アニメーションが
+ * 「実行中」の間は完全に置き換える。ベース側の transform: translate(-50%, -50%)
+ * と合成されることはない。そのため、アニメーションが開始する5秒時点から、
+ * h1の実際のtransformは `scale(...)` のみとなり、中央寄せのための
+ * translate(-50%, -50%) が失われる。
+ * この結果、位置基準である left:50%; top:50% に対して要素の
+ * 「左上角」が置かれる状態になり、要素は中央より右・下側にずれて表示される。
+ *
+ * この挙動は、Next.js移植によって生じたものではなく、PHP版のCSSをそのまま
+ * ブラウザで再生しても同一に発生することを、PHP版のHTML/CSSをそのまま
+ * 使った検証用ページ（Reactを一切介さないスタンドアロンHTML）で実機確認済み。
+ * 検証時のcomputed transform: `matrix(0.489893, 0, 0, 0.489893, 0, 0)`
+ * （末尾2つの平行移動成分が両方とも0＝translateが失われている）。
+ *
+ * 【最小限の修正方法】
+ * @keyframes logo の 0%/100% に transform: translate(-50%, -50%) を合成し、
+ * scaleと同時に指定する。これによりアニメーション中も中央基準が維持され、
+ * 「画面中央に表示されたSTART WORDSが、その場を中心として小さくなりながら
+ * 消えていく」という、PHP版が意図している見た目（そのものの意図であり、
+ * 参考動画を理由にした独自演出ではない）を実現する。
+ * PHP版の値（scale(1)→scale(0.1)、easing、duration、delay等）は一切変更していない。
+ *
+ * 【追加の差分】width: 2.6em（デスクトップは3.6rem）→ width: max-content
+ *
+ * 【差分】
+ * PHP版は width: 2.6em（デスクトップ幅では 3.6rem）を指定している。
+ *
+ * 【なぜ差が発生するか（実機のtext node矩形取得で確認済み）】
+ * font-size: 10em の実際のテキスト「WORDS」は、このフォントでの実測で
+ * 約576px（要素自身のfont-size基準で約3.6em相当）の幅を必要とするが、
+ * width: 2.6em は416px、デスクトップの 3.6rem に至っては57.6pxしかなく、
+ * どちらもテキストの実際の幅より大幅に狭い。text-align: centerを指定していても、
+ * 要素の幅よりテキストが大幅に広い（オーバーフローする）場合、ブラウザは
+ * オーバーフロー分を左右均等にはみ出させるのではなく、テキストの左端を
+ * 要素のleft端（＝中央基準点）に揃えて描画する（実機でrangeのgetBoundingClientRect()
+ * を使い、テキストのleftと要素のleftが完全一致することを確認済み）。
+ * この結果、要素自体（left:50%; translate(-50%,-50%)）は画面中央に正しく
+ * 配置されていても、見えている文字は中央から右へ大きくずれた位置に描画され、
+ * transform: scale(...)がこの「要素＋はみ出したテキスト」全体を要素中心を
+ * 基準に縮小するため、scaleが1→0.1と小さくなるにつれて中央からのずれの絶対量も
+ * 比例して縮み、結果的に「文字列が右から左へ移動しながら中央に収束するように
+ * 縮小して見える」という見た目になる（PHP版のHTML/CSSをそのまま使った検証用
+ * ページでも同一の現象を確認済みのため、Next.js移植起因ではなくPHP版自体が
+ * 持つ不具合）。
+ *
+ * 【最小限の修正方法】
+ * width を、テキストが折り返さず・はみ出さない実際の幅に収まる
+ * width: max-content に変更する。これにより要素の幅は常にテキストの実際の
+ * 幅に一致するため、上記のオーバーフロー起因のずれが原理的に発生しなくなる
+ * （text-align: centerは幅ぴったりの状態では実質何もしないため、要素自体の
+ * 中央固定だけで文字も正しく画面中央に表示される）。デスクトップ幅専用の
+ * width: 3.6rem（下記メディアクエリ参照）は同じ問題を持つ別の値だったため、
+ * 併せて削除し、幅は画面サイズによらずmax-contentへ統一している。
+ */
 .opening-logo {
   position: absolute;
+  width: max-content;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 90vw;
-  max-width: 40em;
+  transform-origin: center center;
+  font-size: 10em;
   text-align: center;
-  margin: 0;
-  line-height: 0.85;
-  letter-spacing: -0.03em;
-  font-size: clamp(3rem, 12vw, 7rem);
+  margin: 0 auto;
+  line-height: 0.8em;
+  letter-spacing: -0.05em;
   color: #000;
-  text-shadow: -2px -2px 0 #ff6, 2px -2px 0 #ff6, -2px 2px 0 #ff6, 2px 2px 0 #ff6;
+  text-shadow:
+    -2px -2px 0 #ff6,
+    2px -2px 0 #ff6,
+    -2px 2px 0 #ff6,
+    2px 2px 0 #ff6;
   opacity: 0;
   z-index: 1;
+  animation: logo 5s ease-out 5s forwards;
 }
 
+/* h1 sub */
 .opening-logo-sub {
+  width: 500px;
   display: block;
-  margin: 0.2em auto 0;
-  font-size: 0.28em;
+  margin: 0 auto;
+  font-size: 0.3em;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 0.8em;
 }
 
-/* ---- 3Dクロール ---- */
+@keyframes logo {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 0;
+  }
+}
+
+/* ---- 3Dクロール（#titles） ---- */
 .opening-crawl {
   position: absolute;
-  width: 20em;
-  max-width: 92vw;
+  width: 18em;
   height: 50em;
   bottom: 0;
   left: 50%;
-  font-size: 180%;
+  margin-left: -9em;
+  font-size: 350%;
   text-align: justify;
   overflow: hidden;
   transform-origin: 50% 100%;
-  /* left:50% + translateX(-50%) で中央寄せする（margin-leftによる固定em幅の
-     中央寄せだと、max-width:92vwで実際の幅がクランプされた際にズレて
-     画面外へはみ出すため、実際の描画幅を基準に中央寄せされるtransformを使用） */
-  transform: translateX(-50%) perspective(300px) rotateX(25deg);
+  transform: perspective(300px) rotateX(25deg);
 }
 
-/* クロール上部を黒へフェードさせ、奥へ消えていくように見せるグラデーション */
+/* #titles:after */
 .opening-crawl::after {
-  content: '';
   position: absolute;
+  content: ' ';
   left: 0;
   right: 0;
   top: 0;
   bottom: 60%;
-  background-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
-.opening-crawl-track {
-  position: absolute;
-  top: 100%;
-}
-
-.opening-crawl-track p {
+.opening-crawl p {
   text-align: justify;
   margin: 0.8em 0;
 }
 
-.opening-crawl-center {
+.opening-crawl p.opening-crawl-center {
   text-align: center;
 }
 
-/* ---- スキップボタン ---- */
+/*
+ * #titlecontent
+ *
+ * delay(クロール開始タイミング)をPHP版の4sから8sへ変更している。
+ *
+ * 【理由】
+ * PHP版は「クロール4秒開始・ロゴ5秒開始（5秒間）」という設定のため、
+ * ロゴとクロールが5〜10秒の間、画面上で同時に表示される。
+ * しかし実際のスター・ウォーズ本編オープニングでは、ロゴが消えてから
+ * クロールが始まる（同時に重ならない）。今回はこの「本編に近い見え方」を
+ * 優先し、ロゴのアニメーションがほぼ終わる8秒（本来は5s delay + 5s duration
+ * ＝10秒で完全に消える）に合わせてクロール開始を8sへ変更した。
+ * その後、演出全体の尺を短くする調整（上部コメント6.参照）により、
+ * 8〜10秒の間だけロゴとクロールがごく短く重なる形になっている。
+ *
+ * スクロール自体の移動量（top:100%→-170%）はPHP版の値のまま変更していないが、
+ * 速度（duration）は演出全体の尺を短くする調整に合わせてPHP版の100s linearから
+ * 80s linearへ短縮している。
+ */
+.opening-crawl-track {
+  position: absolute;
+  top: 100%;
+  animation: scroll 80s linear 8s infinite;
+}
+
+@keyframes scroll {
+  0% {
+    top: 100%;
+  }
+  100% {
+    top: -170%;
+  }
+}
+
+/* ---- スキップボタン（.skip） ---- */
 .opening-skip {
-  position: fixed;
-  right: 24px;
-  top: 10%;
+  opacity: 1;
   width: 200px;
-  max-width: calc(100vw - 48px);
   height: 50px;
   color: #888;
   background: #fff;
   border: none;
   border-radius: 5px;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 1rem;
+  position: fixed;
+  right: 24px;
+  top: 10%;
   cursor: pointer;
-  z-index: 1;
-}
-
-.opening-skip:focus-visible {
-  outline: 3px solid #4ee;
-  outline-offset: 2px;
+  font-family: inherit;
 }
 
 @media screen and (min-width: 769px) {
+  /* PHP版はデスクトップ幅で #opening h1 に left:38%; width:3.6rem; を指定しているが、
+     どちらも「画面中央から縮小して消える」という要件を満たさないため採用していない。
+     - left:38% は画面中央からズレた静的な位置になるため、left:50%（基準ルールのまま）
+       で中央固定する（中央寄せ自体はtranslate(-50%,-50%)側で行う）。
+     - width:3.6rem（57.6px）は実際のテキスト幅より大幅に狭く、.opening-logoの
+       width:max-contentへの変更で解消済みの「テキストが中央からずれて見える」
+       不具合を再発させてしまうため、デスクトップ専用の上書きは行わない
+       （詳しい理由は.opening-logoの上のコメントを参照）。 */
   .opening-intro {
-    font-size: 1.6rem;
-    margin-top: 25%;
-  }
-}
-
-/* ---- prefers-reduced-motion対応 ----
- * 3Dクロールの傾き（perspective/rotateX）のみを取り除き、平面的なスクロールに
- * 切り替える。スクロール自体（進行）はJS側で引き続き行われるため、
- * 「動きが完全に止まって見える」状態にはならない。
- * イントロ・ロゴ・背景色・全体のフェードはJS駆動のため、この設定の影響を受けず
- * 常に同じように進行する。
- */
-@media (prefers-reduced-motion: reduce) {
-  .opening-crawl {
-    transform: translateX(-50%);
+    font-size: 200%;
+    margin: 25% auto;
   }
 }

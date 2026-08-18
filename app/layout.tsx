@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ModalProvider } from "@/contexts/ModalContext";
 import { Modal } from "@/components/Modal";
@@ -16,16 +16,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// オープニング演出用フォント。
+// オープニング演出のフォントについて:
 // 既存PHP版はGoogle Fonts「Droid Sans」を直接読み込んでいるが、
-// Droid SansはGoogleにより後継の「Roboto」へ統合されておりnext/font/googleの
-// フォント一覧にも存在しないため、直接のGoogle Fonts CDN読み込みは行わず、
-// next/font/google経由で読み込める後継フォントRoboto（同じくGoogle製・似た書体）で代替する。
-const roboto = Roboto({
-  variable: "--font-opening-sans",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+// Droid Sansはnext/font/googleのフォント一覧に存在しない（Google側で提供終了）ため
+// 読み込めない。今回は代替フォント（Roboto等）へ勝手に置き換えず、
+// PHP版が元々指定しているフォールバック順（'Droid Sans', arial, verdana, sans-serif）を
+// そのままstyles/opening/opening.cssのfont-familyへ指定している。
+// Droid Sansが見つからない環境では、PHP版と同じくarial/verdanaへフォールバックする。
 
 export const metadata: Metadata = {
   title: 'start-words',
@@ -37,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
