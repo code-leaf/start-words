@@ -2,6 +2,7 @@ import { createClient as createServerClient } from '@/lib/supabase/server';
 import { fetchUserCards } from '@/lib/cards';
 import { SupabaseConfigWarning } from '@/components/SupabaseConfigWarning';
 import { MVP1Dashboard } from '@/components/MVP1Dashboard';
+import { OpeningLauncher } from '@/components/opening/OpeningLauncher';
 import { Card } from '@/types/card';
 import { User } from '@supabase/supabase-js';
 
@@ -67,6 +68,9 @@ export default async function Home() {
             によるユーザー単位のデータ制限・カード取得検証画面
           </p>
         </header>
+
+        {/* ホームメニュー（単語帳・穴埋め・単語登録・演出を見る）とオープニング演出 */}
+        <OpeningLauncher />
 
         {/* メインコンテンツエリア */}
         {!isConfigured ? (

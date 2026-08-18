@@ -1,0 +1,160 @@
+/*
+ * styles/opening/opening.css
+ *
+ * トップページのスターウォーズ風オープニング演出のスタイル定義。
+ * 既存PHP版 (src/index.php, src/css/SW_title.css) の演出仕様
+ * （タイミング・文言・見た目の基準）をNext.js版として再構築したもの。
+ *
+ * このファイルには「見た目（色・配置・フォント）」のみを定義し、
+ * 演出の進行（opacity/transform/背景色の時間変化）はJS側
+ * （components/opening/OpeningAnimation.tsx の requestAnimationFrame ループ）が
+ * ref経由で直接styleへ反映する。CSSの@keyframesに演出タイミングを持たせないのは、
+ * OS/ブラウザの「視差効果を減らす」設定が有効な環境で、意図せず
+ * @keyframesアニメーションが停止してしまう実機不具合が確認されたため。
+ *
+ * Tailwindではなく素のCSSを採用している理由:
+ * - perspective / rotateX 等の見た目に密接なスタイルはTailwindの
+ *   ユーティリティクラスだけで表現すると可読性が落ちるため、このファイルに集約している。
+ */
+
+.opening-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: 9999;
+  overflow: hidden;
+  background-color: #000;
+  opacity: 1;
+  color: #ff6;
+  font-family: var(--font-opening-sans), 'Droid Sans', arial, verdana, sans-serif;
+  font-weight: 700;
+}
+
+/* ---- イントロ文 ---- */
+.opening-intro {
+  position: relative;
+  width: 16em;
+  max-width: 90vw;
+  margin: 30% auto 0;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #4ee;
+  opacity: 1;
+  z-index: 1;
+}
+
+/* ---- START WORDSロゴ ---- */
+.opening-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 40em;
+  text-align: center;
+  margin: 0;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  font-size: clamp(3rem, 12vw, 7rem);
+  color: #000;
+  text-shadow: -2px -2px 0 #ff6, 2px -2px 0 #ff6, -2px 2px 0 #ff6, 2px 2px 0 #ff6;
+  opacity: 0;
+  z-index: 1;
+}
+
+.opening-logo-sub {
+  display: block;
+  margin: 0.2em auto 0;
+  font-size: 0.28em;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* ---- 3Dクロール ---- */
+.opening-crawl {
+  position: absolute;
+  width: 20em;
+  max-width: 92vw;
+  height: 50em;
+  bottom: 0;
+  left: 50%;
+  font-size: 180%;
+  text-align: justify;
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  /* left:50% + translateX(-50%) で中央寄せする（margin-leftによる固定em幅の
+     中央寄せだと、max-width:92vwで実際の幅がクランプされた際にズレて
+     画面外へはみ出すため、実際の描画幅を基準に中央寄せされるtransformを使用） */
+  transform: translateX(-50%) perspective(300px) rotateX(25deg);
+}
+
+/* クロール上部を黒へフェードさせ、奥へ消えていくように見せるグラデーション */
+.opening-crawl::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 60%;
+  background-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.opening-crawl-track {
+  position: absolute;
+  top: 100%;
+}
+
+.opening-crawl-track p {
+  text-align: justify;
+  margin: 0.8em 0;
+}
+
+.opening-crawl-center {
+  text-align: center;
+}
+
+/* ---- スキップボタン ---- */
+.opening-skip {
+  position: fixed;
+  right: 24px;
+  top: 10%;
+  width: 200px;
+  max-width: calc(100vw - 48px);
+  height: 50px;
+  color: #888;
+  background: #fff;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.opening-skip:focus-visible {
+  outline: 3px solid #4ee;
+  outline-offset: 2px;
+}
+
+@media screen and (min-width: 769px) {
+  .opening-intro {
+    font-size: 1.6rem;
+    margin-top: 25%;
+  }
+}
+
+/* ---- prefers-reduced-motion対応 ----
+ * 3Dクロールの傾き（perspective/rotateX）のみを取り除き、平面的なスクロールに
+ * 切り替える。スクロール自体（進行）はJS側で引き続き行われるため、
+ * 「動きが完全に止まって見える」状態にはならない。
+ * イントロ・ロゴ・背景色・全体のフェードはJS駆動のため、この設定の影響を受けず
+ * 常に同じように進行する。
+ */
+@media (prefers-reduced-motion: reduce) {
+  .opening-crawl {
+    transform: translateX(-50%);
+  }
+}
