@@ -42,6 +42,9 @@ export function OpeningLauncher() {
         <Link href="/register" className={menuItemClass}>
           単語登録
         </Link>
+        <Link href="/mypage" className={menuItemClass}>
+          マイページ
+        </Link>
         <button
           type="button"
           className={menuItemClass}

@@ -44,10 +44,12 @@ export type ModalContentConfig = {
  * - 'errataIncorrect' : errata学習の不正解通知（自動判定結果が不正解だった場合）
  * - 'registerSuccess'   : 単語登録画面のカード登録成功通知
  * - 'registerDuplicate' : 単語登録画面での表テキスト重複通知（ユーザー自身の登録済みカードと重複した場合）
+ * - 'saveScoreError'    : 学習セッション完了時のscores保存失敗通知（MVP10）
  */
 export type ModalType =
   | "score"
   | "errataCorrect"
   | "errataIncorrect"
   | "registerSuccess"
-  | "registerDuplicate";
+  | "registerDuplicate"
+  | "saveScoreError";

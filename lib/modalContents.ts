@@ -69,4 +69,17 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
     ],
     closeOnOverlayClick: true,
   },
+
+  // 学習セッション完了時のscores保存失敗通知用モーダル定義 (MVP10)
+  // 保存に成功したことにして結果画面へ進むことはせず、失敗を明示的に通知する。
+  // 再試行は「結果を見る」ボタンを再度押すことで行えるため、専用の再試行ボタンは持たない。
+  saveScoreError: {
+    title: "保存に失敗しました",
+    message:
+      "学習結果の保存に失敗しました。\n通信状況をご確認のうえ、もう一度「結果を見る」ボタンを押してください。",
+    buttons: [
+      { label: "閉じる", colorVariant: "danger", actionKey: "close" },
+    ],
+    closeOnOverlayClick: true,
+  },
 };

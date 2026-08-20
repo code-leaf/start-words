@@ -9,6 +9,7 @@
  */
 
 import { Profile, InsertProfile, UpdateProfile } from "./profile";
+import { Score, InsertScore, UpdateScore } from "./score";
 
 export interface Card {
   /** カードのユニークID (UUID) */
@@ -72,6 +73,20 @@ export type Database = {
             foreignKeyName: "profiles_id_fkey";
             columns: ["id"];
             isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      scores: {
+        Row: Score;
+        Insert: InsertScore;
+        Update: UpdateScore;
+        Relationships: [
+          {
+            foreignKeyName: "scores_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
           }

@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  * ここに追加するだけで、Server Component・Client Componentの実装を問わず、
  * 直接URLアクセスも含めてミドルウェア層で一律にログイン必須化できる。
  */
-const PROTECTED_PATH_PREFIXES = ['/word', '/errata', '/register'];
+const PROTECTED_PATH_PREFIXES = ['/word', '/errata', '/register', '/mypage'];
 
 /**
  * 指定パスが保護対象パスかどうかを判定します。

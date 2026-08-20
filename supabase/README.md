@@ -48,3 +48,14 @@ VALUES
    `profiles` を自動作成するトリガー `on_auth_user_created` が作成されたことを確認します。
 4. `/signup` からユーザー登録すると、`auth.users` と1対1で対応する `profiles` 行
    （`id`, `username`, `created_at`）が自動的に作成されます。
+
+## 7. MVP 10: scores テーブル & RLS の作成
+1. Supabase Dashboard の **SQL Editor** を開きます。
+2. `supabase/scores_schema.sql` の内容をコピー＆ペーストして実行（Run）します。
+3. `scores` テーブル、インデックス `scores_user_id_idx`、2つの個別 RLS ポリシー
+   （SELECT / INSERT）、および `authenticated` ロールへの `GRANT SELECT, INSERT`
+   が作成されたことを確認します。UPDATE / DELETE の権限・ポリシーは
+   意図的に付与しないため、アプリケーション・SQL Editorのどちらからも更新・削除はできません。
+4. Word / Errataで学習を最後まで終えると、ログイン中ユーザーの `user_id` で
+   `scores` 行（`study_type`, `question_count`, `correct_count`, `created_at`）が1件保存され、
+   `/mypage` で自分の学習履歴のみを確認できます。

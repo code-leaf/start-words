@@ -34,8 +34,12 @@ export type StudyScreenProps = {
   hasAnsweredCurrent: boolean;
   // 「次のカード」ボタン押下時のハンドラ
   onNext: () => void;
-  // 「また挑戦する！」ボタン押下時のハンドラ
+  // 最終カード到達時のボタン押下時のハンドラ（呼び出し元によって意味が異なる。CardNavigation参照）
   onRetry: () => void;
+  // 処理中（保存中など）フラグ。ナビゲーションボタンを非活性化する (MVP10)
+  isProcessing?: boolean;
+  // 最終カード到達時のボタンラベル（省略時はCardNavigationのデフォルトに従う） (MVP10)
+  lastCardLabel?: string;
   // BB-8トグル下に表示する操作案内文言（word/errataで文言が異なる）
   toggleHint: string;
   // FlashCardとBB8Toggleの間に差し込む入力欄（errataのみAnswerInputを渡す。wordは未指定）
@@ -70,6 +74,8 @@ export function StudyScreen({
   hasAnsweredCurrent,
   onNext,
   onRetry,
+  isProcessing = false,
+  lastCardLabel,
   toggleHint,
   inputSlot,
 }: StudyScreenProps) {
@@ -154,6 +160,8 @@ export function StudyScreen({
                 onNext={onNext}
                 onRetry={onRetry}
                 disabled={!hasAnsweredCurrent}
+                isProcessing={isProcessing}
+                lastCardLabel={lastCardLabel}
               />
             </div>
           </div>
