@@ -27,7 +27,7 @@ export function AnswerInput({ value, onChange, disabled = false }: AnswerInputPr
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
       placeholder="答えを入力してください"
-      className="w-full max-w-xl px-4 py-3 rounded-xl border border-slate-300 text-base text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+      className="w-full max-w-xl px-4 py-3 rounded-xl border border-slate-300 bg-white text-base text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
     />
   );
 }

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #05060f;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +12,82 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * ブラウザバックでホームへ戻った際にボタンレイアウトが崩れる問題への対応:
+ * 縦スクロールバーの有無でビューポート幅が変動する（scrollbar-gutter未指定だと
+ * スクロールバーの出現・消失時にコンテンツ幅が変わり、flex-wrapのボタン群が
+ * 別の折り返し方になってしまう）ことが原因のひとつのため、常にスクロールバー分の
+ * 余白を確保し、ページ間でレイアウト幅を安定させる。
+ */
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * アプリ全体共通の宇宙背景レイヤー (components/SpaceBackground.tsx)
+ *
+ * 方針:
+ * - GitHubリポジトリ内にPHP版由来の宇宙背景画像は存在しなかったため、画像を新規に
+ *   作成せず、CSSのみで宇宙背景を再現している。
+ * - `--space-bg-image` は、後日ユーザー側が /public 配下に画像を配置した場合に
+ *   差し込めるよう空スロットとして用意してある（未設定時は何も起きず、下の
+ *   グラデーション背景がそのまま使われる）。画像を追加する場合は、この変数に
+ *   `url('/img/space-bg.jpg')` のようなパスを設定するだけでよい。
+ * - 各ページのUI（カード・フォーム・モーダル等）とは完全に分離したレイヤーとして
+ *   layout.tsx に一箇所だけ配置しており、ページが増えても背景を維持しやすい。
+ */
+.app-space-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #05060f;
+}
+
+.app-space-background__image {
+  position: absolute;
+  inset: 0;
+  background-image: var(--space-bg-image, none);
+  background-size: cover;
+  background-position: center;
+}
+
+.app-space-background__nebula {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 8%, rgba(99, 102, 241, 0.35), transparent 60%),
+    radial-gradient(ellipse 55% 40% at 88% 18%, rgba(56, 189, 248, 0.22), transparent 60%),
+    radial-gradient(ellipse 65% 55% at 50% 105%, rgba(139, 92, 246, 0.28), transparent 60%);
+}
+
+.app-space-background__stars,
+.app-space-background__stars::after {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  background-repeat: repeat;
+  background-image:
+    radial-gradient(1.6px 1.6px at 22px 38px, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 96px 132px, #fff, transparent),
+    radial-gradient(1px 1px at 158px 24px, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 206px 168px, #fff, transparent),
+    radial-gradient(1px 1px at 60px 190px, #fff, transparent);
+  background-size: 240px 240px;
+  opacity: 0.55;
+}
+
+.app-space-background__stars::after {
+  content: '';
+  inset: 0;
+  background-position: 60px 90px;
+  background-size: 320px 320px;
+  opacity: 0.35;
 }

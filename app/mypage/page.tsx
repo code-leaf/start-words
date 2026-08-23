@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { fetchUserScores } from "@/lib/scores";
+import { HomeLink } from "@/components/HomeLink";
 import { Score, StudyType } from "@/types/score";
 
 // 学習方式ごとの画面表示ラベル（ResultScreenと共通の対応表）
@@ -46,20 +46,18 @@ export default async function MyPage() {
   const { scores, error } = await fetchUserScores(supabase);
 
   return (
-    <main className="min-h-screen bg-slate-100 flex flex-col items-center px-4 py-8 sm:py-12">
-      <div className="w-full max-w-2xl">
+    <main className="min-h-screen flex flex-col items-center px-4 py-8 sm:py-12 pt-20 sm:pt-12">
+      <div className="w-full max-w-2xl space-y-6">
         {/*
           右上にはAuthStatusBadge（fixed配置のログアウトボタン等）が常時重なって表示されるため、
-          モバイル幅ではヘッダー内リンクがバッジの下に隠れないよう右側に余白(pr-24)を確保する
+          ページ全体をpt-20で下げてバッジの高さ分の余白を確保している。
+          「ホームへ戻る」導線は単語登録画面(/register)と同じHomeLinkコンポーネントを使用し、
+          全ページで同一のデザインに統一している。
         */}
-        <header className="mb-6 flex items-center justify-between gap-3 pr-24 sm:pr-0">
-          <h1 className="text-xl font-bold text-slate-800">マイページ</h1>
-          <Link
-            href="/"
-            className="text-sm text-indigo-600 hover:text-indigo-500 font-medium shrink-0"
-          >
-            ホームへ戻る
-          </Link>
+        <HomeLink />
+
+        <header>
+          <h1 className="text-xl font-bold text-white">マイページ</h1>
         </header>
 
         {error && (

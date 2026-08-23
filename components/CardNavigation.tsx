@@ -44,7 +44,7 @@ export function CardNavigation({
         type='button'
         onClick={isLastCard ? onRetry : onNext}
         disabled={isDisabled}
-        className={`px-8 py-3 rounded-full font-semibold text-base transition-all duration-200 shadow-md select-none active:scale-95 ${
+        className={`px-8 py-3 rounded-full font-semibold text-base whitespace-nowrap transition-all duration-200 shadow-md select-none active:scale-95 ${
           isDisabled
             ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none active:scale-100'
             : isLastCard

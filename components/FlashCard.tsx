@@ -53,14 +53,14 @@ export function FlashCard({ card, isFlipped }: FlashCardProps) {
       >
         {/* カード表面（問題・英単語） */}
         <div className="front">
-          <span className="text-top">QUESTION</span>
-          <span className="text text-center">{displayedCard.front_text}</span>
+          <span className="card-text-top">QUESTION</span>
+          <span className="card-text card-text-center">{displayedCard.front_text}</span>
         </div>
 
         {/* カード裏面（解答・日本語訳） */}
         <div className="back">
-          <span className="text-top">ANSWER</span>
-          <span className="text text-center">{displayedCard.back_text}</span>
+          <span className="card-text-top">ANSWER</span>
+          <span className="card-text card-text-center">{displayedCard.back_text}</span>
         </div>
       </div>
     </div>

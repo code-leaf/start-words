@@ -41,7 +41,7 @@ export function ResultScreen({
   const accuracy = total > 0 ? Math.round((correctCount / total) * 100) : 0;
 
   return (
-    <div className="h-dvh overflow-hidden bg-slate-100 flex flex-col items-center justify-center p-4 sm:p-6">
+    <div className="h-dvh overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md text-center py-10 px-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
         <p className="text-sm font-semibold text-indigo-600 tracking-wide uppercase">
           {STUDY_TYPE_LABEL[studyType]}
@@ -58,7 +58,7 @@ export function ResultScreen({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-8 px-8 py-3 rounded-full font-semibold text-base bg-slate-900 text-white hover:bg-slate-800 shadow-md shadow-slate-900/10 transition-all duration-200 active:scale-95 cursor-pointer"
+          className="mt-8 px-8 py-3 rounded-full font-semibold text-base whitespace-nowrap bg-slate-900 text-white hover:bg-slate-800 shadow-md shadow-slate-900/10 transition-all duration-200 active:scale-95 cursor-pointer"
         >
           もう一度挑戦する
         </button>
@@ -66,13 +66,13 @@ export function ResultScreen({
         <div className="flex items-center justify-center gap-4 mt-6 text-sm">
           <Link
             href="/mypage"
-            className="text-indigo-600 hover:text-indigo-500 font-medium"
+            className="text-indigo-600 hover:text-indigo-500 font-medium whitespace-nowrap"
           >
             マイページで履歴を見る
           </Link>
           <Link
             href="/"
-            className="text-slate-400 hover:text-slate-600 font-medium"
+            className="text-slate-400 hover:text-slate-600 font-medium whitespace-nowrap"
           >
             ホームへ戻る
           </Link>

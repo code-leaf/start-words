@@ -70,8 +70,24 @@
   -webkit-backface-visibility: hidden;
 }
 
-/* 表面のメインテキスト */
-.front .text {
+/*
+ * 表面のメインテキスト
+ *
+ * クラス名について（MVP12での変更）:
+ * 元々このファイルは `.text` `.text-top` `.text-center` という汎用的な
+ * クラス名を使用していたが、`.text-center` はTailwindの標準ユーティリティ
+ * クラス（text-align: centerのみを指定）と同名だった。Word/Errata画面へ
+ * 遷移してこのCSSファイルが読み込まれると、後から読み込まれたこのファイルの
+ * `.text-center`（font-size: 3.5remを含む）がカスケードでTailwindの
+ * `.text-center` より優先されてしまい、アプリ内の他の場所（ホーム画面の
+ * メニューボタン等）で使われているTailwindの`text-center`まで巨大な
+ * font-sizeに書き換えられてしまうという不具合があった
+ * （ホームからWord/Errataへ遷移後、ブラウザバックでホームへ戻ると
+ * ボタンレイアウトが崩れる不具合の原因）。
+ * 以後Tailwindのユーティリティクラスと衝突しないよう、`.card-text` 接頭辞を
+ * 付けたクラス名に変更している（見た目・挙動は一切変更していない）。
+ */
+.front .card-text {
   font-size: 4rem;
   font-weight: 500;
   color: #1a1a1a;
@@ -79,7 +95,7 @@
 }
 
 /* カード左上のラベルテキスト */
-.text-top {
+.card-text-top {
   font-size: 0.7rem;
   letter-spacing: 0.1em;
   color: #aaa;
@@ -89,7 +105,7 @@
 }
 
 /* カード中央のテキスト */
-.text-center {
+.card-text-center {
   font-size: 3.5rem;
   font-weight: 500;
   color: #1a1a1a;

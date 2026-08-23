@@ -80,10 +80,14 @@ export function StudyScreen({
   inputSlot,
 }: StudyScreenProps) {
   return (
-    <div className="h-dvh overflow-hidden bg-slate-100 flex flex-col items-center justify-between p-3 sm:p-6">
-      {/* 画面ヘッダー */}
-      <header className="w-full max-w-xl text-center py-2 sm:py-4 shrink-0">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+    <div className="h-dvh overflow-hidden flex flex-col items-center justify-between p-3 sm:p-6">
+      {/*
+        画面ヘッダー: 右上にAuthStatusBadge（fixed配置）が常時重なって表示されるため、
+        pr-20でタイトル・進捗表示がバッジの下に隠れない余白を確保する（sm以上は
+        バッジの表示内容が小さくなるためpr-0に戻す）
+      */}
+      <header className="w-full max-w-xl text-center py-2 sm:py-4 shrink-0 pr-20 sm:pr-0">
+        <h1 className="text-xl font-bold text-white tracking-tight">
           {title}
         </h1>
 
@@ -104,7 +108,7 @@ export function StudyScreen({
       <main className="w-full max-w-xl flex-1 min-h-0 flex flex-col items-center justify-center">
         {/* ローディング表示 */}
         {isLoading && (
-          <div className="text-center py-12 text-slate-500 font-medium animate-pulse">
+          <div className="text-center py-12 text-slate-200 font-medium animate-pulse">
             カードを読み込み中...
           </div>
         )}
@@ -124,7 +128,7 @@ export function StudyScreen({
               カードが登録されていません
             </p>
             <p className="text-sm text-slate-400 mt-2">
-              トップ画面でテストカードを作成・登録してから再度お試しください。
+              単語登録画面からカードを登録してから再度お試しください。
             </p>
           </div>
         )}
@@ -150,7 +154,7 @@ export function StudyScreen({
                 bgVariant={1}
                 disabled={isModalOpen}
               />
-              <p className="text-xs text-slate-400 mt-2">{toggleHint}</p>
+              <p className="text-xs text-slate-300 mt-2">{toggleHint}</p>
             </div>
 
             {/* 4. ナビゲーション（通常時は次へ進行、最終問題到達時は「また挑戦する！」） */}

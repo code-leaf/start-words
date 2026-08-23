@@ -307,6 +307,60 @@
   font-family: inherit;
 }
 
+/*
+ * ---- スマートフォン表示の調整（MVP12） ----
+ *
+ * 1. 黄色文字（.opening-crawl、色は.opening-layerのcolor:#ff6を継承）が
+ *    スマートフォンで見えない問題について:
+ *    .opening-crawl の width:18em はそれ自身のfont-size基準のため、
+ *    PC想定のfont-size:350%のままスマートフォン幅で表示すると、
+ *    18em が実際には1000px前後という画面幅を大幅に超える横幅になってしまい、
+ *    ほとんどの文字が画面外（.opening-layerのoverflow:hiddenでクリップされる
+ *    範囲外）に出てしまうことが原因だった。
+ *    perspective・rotateX・アニメーション構造・移動量（top:100%→-170%）は
+ *    一切変更せず、font-sizeのみを画面幅に応じて縮小することで、
+ *    18em幅が画面内に収まるようにしている。
+ *
+ * 2. 水色文字（.opening-intro、color:#4ee）の位置・重なりについて（MVP12追加要件で再調整）:
+ *    当初は margin-top:30%（.opening-layerの幅基準のパーセンテージ）が、
+ *    高さ基準であるスキップボタン（top:10%）と衝突する問題を、margin-topの
+ *    固定値化（7rem）で解消していた。しかしこれは画面上部寄りの位置になり、
+ *    「スマートフォン画面の中央付近に表示する」という要件を満たさなかった。
+ *    そのため、スマートフォン幅では position:absolute + top:50%/left:50% +
+ *    translate(-50%,-50%) により、.opening-layer（画面全体、position:fixed;
+ *    inset:0）を基準とした縦横中央配置に変更している。
+ *    これによりビューポートの高さに関わらず常に画面の視覚的な中央付近に
+ *    配置され、かつスキップボタン（top:10%付近、上部のみに存在）とは
+ *    構造的に離れた位置になるため重ならない。文字はイントロ用の
+ *    @keyframes introが0〜5秒で完結した後は不透明度0のまま残り、
+ *    5秒後に表示が始まるロゴ・クロールとは時間的に重ならない。
+ */
+@media screen and (max-width: 768px) {
+  .opening-intro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  .opening-crawl {
+    font-size: 140%;
+  }
+}
+
+@media screen and (max-width: 430px) {
+  .opening-crawl {
+    font-size: 110%;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .opening-crawl {
+    font-size: 95%;
+  }
+}
+
 @media screen and (min-width: 769px) {
   /* PHP版はデスクトップ幅で #opening h1 に left:38%; width:3.6rem; を指定しているが、
      どちらも「画面中央から縮小して消える」という要件を満たさないため採用していない。

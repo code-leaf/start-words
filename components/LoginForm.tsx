@@ -10,7 +10,7 @@ import { translateAuthError } from '@/lib/authErrors';
  *
  * 目的:
  * - メールアドレス・パスワードによるログインのみを担当する
- * - ログイン成功後は、保護ページの入口である単語登録画面(/register)へ遷移する
+ * - ログイン成功後は、公開用トップページ(/)へ遷移する（MVP12）
  *
  * 失敗時の方針:
  * - Supabaseの技術的なエラーメッセージをそのまま出さず、translateAuthErrorで日本語化する
@@ -47,8 +47,8 @@ export function LoginForm() {
         return;
       }
 
-      // ログイン成功後は単語登録画面へ遷移する
-      router.push('/register');
+      // ログイン成功後はホームページへ遷移する（MVP12）
+      router.push('/');
       router.refresh();
     } finally {
       setIsSubmitting(false);

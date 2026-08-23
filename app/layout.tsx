@@ -5,6 +5,7 @@ import { ModalProvider } from "@/contexts/ModalContext";
 import { Modal } from "@/components/Modal";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthStatusBadge } from "@/components/AuthStatusBadge";
+import { SpaceBackground } from "@/components/SpaceBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SpaceBackground />
         <AuthProvider>
           <ModalProvider>
             {children}
