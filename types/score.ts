@@ -45,3 +45,17 @@ export type UpdateScore = {
   correct_count?: number;
   created_at?: string;
 };
+
+/**
+ * マイページの学習履歴ソート条件 (MVP13)
+ *
+ * いずれの条件も、主要な比較値が同値の場合は created_at の新しい順を
+ * 第2ソートキーとする（lib/sortScores.ts の sortScores を参照）。
+ */
+export type SortOption =
+  | "newest"
+  | "oldest"
+  | "accuracyDesc"
+  | "accuracyAsc"
+  | "questionCountDesc"
+  | "questionCountAsc";
