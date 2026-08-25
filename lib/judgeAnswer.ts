@@ -9,11 +9,17 @@ export function normalizeAnswer(text: string): string {
 }
 
 /**
- * 入力値と正解が一致するかどうかを判定する
+ * 入力値が正解候補のいずれか1件と一致するかどうかを判定する
  *
  * 判定方式:
- * - MVP4では前後空白除去のみを行う単純な完全一致比較とする（大文字小文字は区別する）
+ * - 前後空白除去のみを行う単純な完全一致比較（大文字小文字は区別する）
+ * - MVP14により1カードにつき複数の正解候補を持てるようになったため、
+ *   correctAnswersのいずれか1件と一致すれば正解とする
+ * - 部分一致・大文字小文字の自動変換・全角半角変換等の表記ゆれ吸収は行わない
  */
-export function isAnswerCorrect(input: string, correctAnswer: string): boolean {
-  return normalizeAnswer(input) === normalizeAnswer(correctAnswer);
+export function isAnswerCorrect(input: string, correctAnswers: string[]): boolean {
+  const normalizedInput = normalizeAnswer(input);
+  return correctAnswers.some(
+    (correctAnswer) => normalizedInput === normalizeAnswer(correctAnswer)
+  );
 }

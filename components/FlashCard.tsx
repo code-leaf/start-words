@@ -57,10 +57,24 @@ export function FlashCard({ card, isFlipped }: FlashCardProps) {
           <span className="card-text card-text-center">{displayedCard.front_text}</span>
         </div>
 
-        {/* カード裏面（解答・日本語訳） */}
+        {/* カード裏面（解答・日本語訳）
+            MVP14: 正解候補が複数登録されている場合はすべて表示する。
+            1件のみの場合は従来どおりの見た目（card-text-center）を維持する */}
         <div className="back">
           <span className="card-text-top">ANSWER</span>
-          <span className="card-text card-text-center">{displayedCard.back_text}</span>
+          {displayedCard.answers.length <= 1 ? (
+            <span className="card-text card-text-center">
+              {displayedCard.answers[0]?.answer_text ?? ""}
+            </span>
+          ) : (
+            <div className="card-answer-list">
+              {displayedCard.answers.map((answer) => (
+                <span key={answer.id} className="card-text card-answer-item">
+                  {answer.answer_text}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -63,12 +63,11 @@ export default function ErrataStudyPage() {
   // hasAnsweredCurrent ガードにより、同一カードへの二重採点・二重モーダルを防止
   useEffect(() => {
     if (isFlipped && !hasAnsweredCurrent) {
-      const isCorrect = isAnswerCorrect(inputValue, currentCard?.back_text ?? "");
+      // MVP14: currentCard.answers（複数の正解候補）のいずれか1件と一致すれば正解とする
+      const answerTexts = currentCard?.answers.map((answer) => answer.answer_text) ?? [];
+      const isCorrect = isAnswerCorrect(inputValue, answerTexts);
       recordAnswer(isCorrect);
-      openModal(
-        isCorrect ? "errataCorrect" : "errataIncorrect",
-        currentCard?.back_text ?? ""
-      );
+      openModal(isCorrect ? "errataCorrect" : "errataIncorrect", answerTexts);
     }
   }, [isFlipped, hasAnsweredCurrent, currentCard, inputValue, openModal, recordAnswer]);
 
@@ -116,7 +115,7 @@ export default function ErrataStudyPage() {
       flip={flip}
       isModalOpen={isOpen}
       isLastCard={isLastCard}
-      hasAnsweredCurrent={hasAnsweredCurrent}
+      isNextDisabled={!hasAnsweredCurrent}
       onNext={handleAdvance}
       onRetry={handleSessionComplete}
       isProcessing={isSaving}

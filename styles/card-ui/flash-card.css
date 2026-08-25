@@ -112,6 +112,31 @@
   text-align: center;
 }
 
+/*
+ * 正解候補が複数ある場合の一覧表示 (MVP14)
+ *
+ * card-text-centerと違い候補数が可変のため、はみ出し防止のため
+ * フォントサイズを抑え、候補数が多い場合は縦スクロールで収める
+ */
+.card-answer-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  max-width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  padding: 0 0.5em;
+}
+
+.card-answer-item {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: center;
+}
+
 /* PC幅（769px以上）時のレイアウト調整 */
 @media screen and (min-width: 769px) {
   .card-container {

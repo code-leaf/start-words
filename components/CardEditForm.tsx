@@ -1,22 +1,20 @@
 "use client";
 
 import React from "react";
-import { useCardRegister } from "@/hooks/useCardRegister";
+import Link from "next/link";
+import { Card } from "@/types/card";
+import { useCardEdit } from "@/hooks/useCardEdit";
 import { CardAnswerFields } from "@/components/CardAnswerFields";
 
 /**
- * 単語登録画面（/register）の入力フォームコンポーネント
+ * 単語編集画面（/mypage/cards/[id]/edit）の入力フォームコンポーネント (MVP14)
  *
- * 目的:
- * - 「表」「裏（正解候補）」の入力欄と登録ボタンのUIを提供する
- * - 入力値の状態管理・バリデーション・登録処理そのものはuseCardRegisterに委譲し、
- *   このコンポーネントはUIの組み立てと表示のみを担当する
- *
- * MVP14での変更点:
- * - 「裏」の単一入力欄を、正解候補を複数登録できるリスト入力へ変更した
- *   （追加ボタンで候補を増やし、各候補は最後の1件を除いて削除できる）
+ * CardRegisterFormとの違い:
+ * - 既存カード（表・正解候補）の値で初期化された状態から編集する
+ * - 送信ボタンは「更新する」、加えて一覧へ戻る「キャンセル」導線を持つ
+ * - 状態管理・更新処理はuseCardEditに委譲し、このコンポーネントはUIの組み立てのみを担当する
  */
-export function CardRegisterForm() {
+export function CardEditForm({ card }: { card: Card }) {
   const {
     frontText,
     setFrontText,
@@ -28,13 +26,13 @@ export function CardRegisterForm() {
     answerErrors,
     submitError,
     isSubmitting,
-    register,
-  } = useCardRegister();
+    save,
+  } = useCardEdit(card);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // ブラウザ標準のフォーム送信（ページ遷移）を止め、register()による登録処理に委ねる
+    // ブラウザ標準のフォーム送信（ページ遷移）を止め、save()による更新処理に委ねる
     e.preventDefault();
-    register();
+    save();
   };
 
   return (
@@ -49,11 +47,7 @@ export function CardRegisterForm() {
         </div>
       )}
 
-      {/* 表（front_text）入力欄
-          MVP14追加修正: 表は英単語を入力する欄のため、lang="en"を指定する。
-          IMEのON/OFFをWeb標準から強制する手段は無いが、iOS Safari等の
-          仮想キーボードはフォーカス中フィールドのlangをヒントに言語を
-          切り替えることがあるため、可能な範囲で半角英数字入力を促す */}
+      {/* 表（front_text）入力欄 */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="front_text" className="text-sm font-semibold text-slate-700">
           表
@@ -61,7 +55,6 @@ export function CardRegisterForm() {
         <input
           id="front_text"
           type="text"
-          lang="en"
           value={frontText}
           onChange={(e) => setFrontText(e.target.value)}
           disabled={isSubmitting}
@@ -87,18 +80,31 @@ export function CardRegisterForm() {
         disabled={isSubmitting}
       />
 
-      {/* 登録ボタン（タップしやすいよう縦の余白を広めに確保） */}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={`w-full py-3.5 rounded-full font-semibold text-base shadow-md transition-all duration-200 select-none active:scale-95 ${
-          isSubmitting
-            ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none active:scale-100"
-            : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/10 cursor-pointer"
-        }`}
-      >
-        {isSubmitting ? "登録中..." : "カードを登録"}
-      </button>
+      {/* キャンセル・更新ボタン */}
+      <div className="flex flex-col sm:flex-row gap-2.5">
+        <Link
+          href="/mypage"
+          aria-disabled={isSubmitting}
+          className={`w-full py-3.5 rounded-full font-semibold text-base text-center border border-slate-300 text-slate-600 transition-colors ${
+            isSubmitting
+              ? "opacity-50 pointer-events-none"
+              : "hover:bg-slate-50 cursor-pointer"
+          }`}
+        >
+          キャンセル
+        </Link>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`w-full py-3.5 rounded-full font-semibold text-base shadow-md transition-all duration-200 select-none active:scale-95 ${
+            isSubmitting
+              ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none active:scale-100"
+              : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/10 cursor-pointer"
+          }`}
+        >
+          {isSubmitting ? "更新中..." : "更新する"}
+        </button>
+      </div>
     </form>
   );
 }

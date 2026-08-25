@@ -45,6 +45,8 @@ export type ModalContentConfig = {
  * - 'registerSuccess'   : 単語登録画面のカード登録成功通知
  * - 'registerDuplicate' : 単語登録画面での表テキスト重複通知（ユーザー自身の登録済みカードと重複した場合）
  * - 'saveScoreError'    : 学習セッション完了時のscores保存失敗通知（MVP10）
+ * - 'editSuccess'       : 単語編集画面のカード更新成功通知（MVP14）
+ * - 'editDuplicate'     : 単語編集画面での表テキスト重複通知（自分自身を除く既存カードと重複した場合、MVP14）
  */
 export type ModalType =
   | "score"
@@ -52,4 +54,6 @@ export type ModalType =
   | "errataIncorrect"
   | "registerSuccess"
   | "registerDuplicate"
-  | "saveScoreError";
+  | "saveScoreError"
+  | "editSuccess"
+  | "editDuplicate";

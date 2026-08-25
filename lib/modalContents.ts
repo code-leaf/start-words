@@ -27,10 +27,10 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
   },
 
   // errata学習の正解通知用モーダル定義
-  // data には currentCard.back_text（正解文字列）が渡される
+  // data には currentCard.answers から取り出した正解候補テキストの配列（string[]）が渡される (MVP14)
   errataCorrect: {
     title: "正解！",
-    message: (data) => `正解です！\n答え: ${data as string}`,
+    message: (data) => `正解です！\n答え: ${(data as string[]).join("、")}`,
     buttons: [
       { label: "閉じる", colorVariant: "primary", actionKey: "close" },
     ],
@@ -38,10 +38,10 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
   },
 
   // errata学習の不正解通知用モーダル定義
-  // 不正解時も正解文字列を必ず表示し、ユーザーが正解を確認できるようにする
+  // 不正解時も正解候補一覧を必ず表示し、ユーザーが正解を確認できるようにする
   errataIncorrect: {
     title: "不正解...",
-    message: (data) => `残念、不正解です。\n正解: ${data as string}`,
+    message: (data) => `残念、不正解です。\n正解: ${(data as string[]).join("、")}`,
     buttons: [
       { label: "閉じる", colorVariant: "primary", actionKey: "close" },
     ],
@@ -64,6 +64,27 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
   registerDuplicate: {
     title: "登録できません",
     message: "同じ「表」の単語がすでに登録されています。",
+    buttons: [
+      { label: "閉じる", colorVariant: "danger", actionKey: "close" },
+    ],
+    closeOnOverlayClick: true,
+  },
+
+  // 単語編集画面のカード更新成功通知用モーダル定義 (MVP14)
+  editSuccess: {
+    title: "更新しました",
+    message: "カードの内容を更新しました。",
+    buttons: [
+      { label: "閉じる", colorVariant: "success", actionKey: "close" },
+    ],
+    closeOnOverlayClick: true,
+  },
+
+  // 単語編集画面での表テキスト重複通知用モーダル定義 (MVP14)
+  // 比較対象からは編集中のカード自身を除外しているため、他の登録済みカードと重複した場合のみ表示される
+  editDuplicate: {
+    title: "更新できません",
+    message: "同じ「表」の単語が、他のカードに既に登録されています。",
     buttons: [
       { label: "閉じる", colorVariant: "danger", actionKey: "close" },
     ],

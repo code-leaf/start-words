@@ -30,6 +30,29 @@ export default function RegisterPage() {
           <p className="text-sm text-slate-300 mt-1.5">
             新しい学習カードを追加します
           </p>
+          {/*
+            MVP14で追加した説明文: 表・裏それぞれに何を入力するか、
+            裏面（日本語）は複数の正解候補を登録できることを明示する。
+            見出し直下のリード文と地続きに読めるよう、同じtext-slate-300・
+            text-sm系のスタイルで馴染ませている。
+            レスポンシブ対応（MVP14追加修正）:
+            スマホ幅（375px付近）では文中の意味の区切りで改行したいという
+            要望があったため、ホーム画面の説明文（app/page.tsx）と同じ
+            <br className="sm:hidden">パターンを踏襲する。sm未満でのみ
+            改行を挿入し、sm以上（PC・タブレット）では改行なしの1行表示に戻る。
+          */}
+          <div className="text-sm text-slate-300 mt-2 leading-relaxed space-y-1">
+            <p>
+              表面には英単語、裏面には
+              <br className="sm:hidden" />
+              日本語を入力してください。
+            </p>
+            <p>
+              裏面の日本語は複数の
+              <br className="sm:hidden" />
+              正解候補を登録できます。
+            </p>
+          </div>
         </header>
 
         <CardRegisterForm />

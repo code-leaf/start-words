@@ -30,8 +30,10 @@ export type StudyScreenProps = {
   isModalOpen: boolean;
   // 最終カードに到達しているかどうか
   isLastCard: boolean;
-  // 現在のカードに回答済みかどうか（次へボタンの活性制御用）
-  hasAnsweredCurrent: boolean;
+  // 「次のカード」ボタンを非活性化するかどうか。
+  // 何を条件に非活性化するかはword/errataで異なるため（word: 裏面未確認、errata: 未回答）、
+  // StudyScreen側では判定を持たず、呼び出し側が計算した結果をそのまま受け取る (MVP14)
+  isNextDisabled: boolean;
   // 「次のカード」ボタン押下時のハンドラ
   onNext: () => void;
   // 最終カード到達時のボタン押下時のハンドラ（呼び出し元によって意味が異なる。CardNavigation参照）
@@ -71,7 +73,7 @@ export function StudyScreen({
   flip,
   isModalOpen,
   isLastCard,
-  hasAnsweredCurrent,
+  isNextDisabled,
   onNext,
   onRetry,
   isProcessing = false,
@@ -163,7 +165,7 @@ export function StudyScreen({
                 isLastCard={isLastCard}
                 onNext={onNext}
                 onRetry={onRetry}
-                disabled={!hasAnsweredCurrent}
+                disabled={isNextDisabled}
                 isProcessing={isProcessing}
                 lastCardLabel={lastCardLabel}
               />
