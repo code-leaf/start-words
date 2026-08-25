@@ -74,13 +74,19 @@ export function Modal() {
           {activeModal.message}
         </p>
 
+        {/* ボタン幅について（MVP15）:
+            従来は固定w-[120px]だったが、MVP15のBGM選択モーダル（3ボタン、
+            「🔊 音声ありで再生」等の長いラベル）で文字が折り返してしまうため、
+            min-w-[100px] + px-4 のコンテンツ追従幅へ変更した。既存の短いラベル
+            （「正解」「不正解」「閉じる」等）は最小幅に収まるため見た目は変わらない。
+            3ボタンが1行に収まらない画面幅ではflex-wrapにより自然に折り返す。 */}
         <div className='flex items-center justify-center gap-[12px] flex-wrap'>
           {activeModal.buttons.map((button) => (
             <button
               key={button.actionKey}
               type='button'
               onClick={() => handleButtonClick(button.actionKey)}
-              className={`w-[120px] h-[44px] rounded-[10px] font-bold text-sm sm:text-base transition-all duration-150 active:scale-95 cursor-pointer flex items-center justify-center ${
+              className={`min-w-[100px] h-[44px] px-4 rounded-[10px] font-bold text-sm sm:text-base whitespace-nowrap transition-all duration-150 active:scale-95 cursor-pointer flex items-center justify-center ${
                 buttonColorStyles[button.colorVariant]
               }`}
             >

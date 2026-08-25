@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '@/styles/opening/opening.css';
 
 export type OpeningAnimationProps = {
+  // trueの場合のみBGMを再生する（BGM確認モーダルでの選択結果をそのまま渡す、MVP15）。
+  // falseの場合は<audio>要素自体を生成せず、演出はこれまで通り無音のまま進行する。
+  audioEnabled: boolean;
   // オープニング終了時（全演出終了 or スキップ）に一度だけ呼ばれるコールバック。
   // 自動再生・手動再生のどちらで使うかはこの呼び出し元（親コンポーネント）が決める。
   onFinish: () => void;
@@ -18,6 +21,9 @@ export type OpeningAnimationProps = {
 // （毎フレームの位置・拡大率などをJSで計算・更新することはしていない）。
 const OPENING_TOTAL_DURATION_MS = 53000;
 
+// BGM音源のパス。Web再生には（変換元のwavではなく）mp3を使用する。
+const BGM_SRC = '/audio/opening-bgm.mp3';
+
 /**
  * トップページのスターウォーズ風オープニング演出（イントロ文 → ロゴ → 3Dクロール）
  *
@@ -25,19 +31,42 @@ const OPENING_TOTAL_DURATION_MS = 53000;
  * そのままNext.js版へ移植したコンポーネント。DOM構造・CSSクラスの対応関係は
  * styles/opening/opening.css 側のコメントを参照。
  *
- * このコンポーネントがJSで行っているのは以下の2点のみで、演出そのもの
+ * このコンポーネントがJSで行っているのは以下の3点で、演出そのもの
  * （opacity・transform・背景色の時間変化）はすべてCSSの@keyframesが担っている。
  * - マウント時にスキップボタンへフォーカスする（キーボード・スクリーンリーダー対応）
- * - 23秒後、またはスキップ操作で、呼び出し元へ終了を通知する
+ * - 53秒後、またはスキップ操作で、呼び出し元へ終了を通知する
+ * - （MVP15で追加）audioEnabledがtrueのときのみBGMを再生し、Mute/Unmute切り替え・
+ *   終了時の停止を管理する
+ *
+ * BGM再生とAutoplay Policyについて（MVP15）:
+ * - このコンポーネント自体はBGM確認モーダルでユーザーが「🔊 音声ありで再生」を
+ *   選択した後にだけマウントされる。つまりaudioEnabled=trueでのplay()呼び出しは、
+ *   常にユーザーの明示的なクリック操作を起点とした一連の流れの中で行われるため、
+ *   ページロード時の無許可自動再生（Autoplay Policyで多くのブラウザにブロックされる）
+ *   には該当しない。それでも一部環境でplay()が失敗する可能性があるため、
+ *   失敗時は例外を握りつぶし、無音のまま演出を継続する（演出自体は止めない）。
  */
-export function OpeningAnimation({ onFinish }: OpeningAnimationProps) {
+export function OpeningAnimation({ audioEnabled, onFinish }: OpeningAnimationProps) {
   // onFinishが二重に呼ばれないようにするガード（タイマー満了とスキップクリックの両対応）
   const hasFinishedRef = useRef(false);
   const skipButtonRef = useRef<HTMLButtonElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  // ミュート状態。<audio muted>へ反映するReact側の状態として持つ
+  // （DOM要素のmutedプロパティを直接書き換えるのではなく、宣言的に同期させる）
+  const [isMuted, setIsMuted] = useState(false);
 
   const finish = () => {
     if (hasFinishedRef.current) return;
     hasFinishedRef.current = true;
+
+    // 通常終了・スキップのどちらの経路でも確実にBGMを停止し、
+    // 次回再生時に前回の再生位置を引き継がないようcurrentTimeを0へ戻す
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
     onFinish();
   };
 
@@ -46,13 +75,34 @@ export function OpeningAnimation({ onFinish }: OpeningAnimationProps) {
     // 利用者がすぐにスキップ操作へたどり着けるようにする
     skipButtonRef.current?.focus();
 
-    // 23秒後に自動終了させるタイマー。
+    // 53秒後に自動終了させるタイマー。
     // React Strict Modeの開発時二重実行（mount→cleanup→mount）が起きても、
     // クリーンアップで必ずclearTimeoutするため、タイマーが二重に走ることはない。
     const timer = setTimeout(finish, OPENING_TOTAL_DURATION_MS);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!audioEnabled) return;
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // ユーザーがBGM確認モーダルで「🔊 音声ありで再生」を選んだこと（ユーザー操作）を
+    // 起点として呼ばれるplay()。Autoplay Policyにより失敗する可能性はゼロではないため、
+    // rejectしても演出自体は止めず、無音のまま続行する。
+    audio.play().catch(() => {
+      // 再生できなくても演出は継続する（意図的に何もしない）
+    });
+
+    // React Strict Modeでのmount→cleanup→mount時に二重再生が起きないよう、
+    // クリーンアップで必ず一時停止する（実際のアンマウント時はfinish()側で
+    // 既にpause+currentTime=0されているため、ここでのpauseは冪等）
+    return () => {
+      audio.pause();
+    };
+  }, [audioEnabled]);
 
   return (
     <div
@@ -61,9 +111,17 @@ export function OpeningAnimation({ onFinish }: OpeningAnimationProps) {
       aria-modal="true"
       aria-label="オープニング演出"
     >
+      {/* BGM音源。audioEnabled=falseの場合は要素自体を生成せず、
+          不要なネットワーク取得（プリロード）も発生させない (MVP15)。
+          BGMの尺は53秒でOPENING_TOTAL_DURATION_MSとほぼ一致するよう作られているため、
+          loop指定はしない（末尾で不自然に頭出しされるのを避ける） */}
+      {audioEnabled && (
+        <audio ref={audioRef} src={BGM_SRC} muted={isMuted} preload="auto" />
+      )}
+
       {/* p#start */}
       <p className="opening-intro">
-        このWebアプリはスターウォーズをオマージュして作成しています…
+        このWebアプリは<strong>あの有名な宇宙映画</strong>をオマージュして作成しています…
       </p>
 
       {/* #opening h1 */}
@@ -92,6 +150,18 @@ export function OpeningAnimation({ onFinish }: OpeningAnimationProps) {
           </p>
         </div>
       </div>
+
+      {/* BGM Mute/Unmuteトグル。BGMが有効な場合のみ表示する (MVP15) */}
+      {audioEnabled && (
+        <button
+          type="button"
+          className="opening-mute-toggle"
+          aria-label={isMuted ? 'BGMのミュートを解除する' : 'BGMをミュートする'}
+          onClick={() => setIsMuted((prev) => !prev)}
+        >
+          <span aria-hidden="true">{isMuted ? '🔇' : '🔊'}</span>
+        </button>
+      )}
 
       {/* button#skipBtn.skip */}
       <button

@@ -47,6 +47,7 @@ export type ModalContentConfig = {
  * - 'saveScoreError'    : 学習セッション完了時のscores保存失敗通知（MVP10）
  * - 'editSuccess'       : 単語編集画面のカード更新成功通知（MVP14）
  * - 'editDuplicate'     : 単語編集画面での表テキスト重複通知（自分自身を除く既存カードと重複した場合、MVP14）
+ * - 'openingAudioChoice': オープニング演出開始前のBGM再生確認（音声あり/音声なし/スキップの3択、MVP15）
  */
 export type ModalType =
   | "score"
@@ -56,4 +57,5 @@ export type ModalType =
   | "registerDuplicate"
   | "saveScoreError"
   | "editSuccess"
-  | "editDuplicate";
+  | "editDuplicate"
+  | "openingAudioChoice";

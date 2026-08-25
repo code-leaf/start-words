@@ -308,6 +308,32 @@
 }
 
 /*
+ * ---- BGM Mute/Unmuteトグル（MVP15） ----
+ * スキップボタンと同じ配色・角丸・right位置で統一感を持たせつつ、
+ * スキップボタン（top:10%, height:50px）の直下に10px空けて配置する。
+ * 画面幅に関わらずrightからの固定距離で配置されるため、PC・スマートフォン
+ * いずれでもスキップボタンと重ならない。
+ */
+.opening-mute-toggle {
+  opacity: 1;
+  width: 50px;
+  height: 50px;
+  color: #888;
+  background: #fff;
+  border: none;
+  border-radius: 5px;
+  position: fixed;
+  right: 24px;
+  top: calc(10% + 60px);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
  * ---- スマートフォン表示の調整（MVP12） ----
  *
  * 1. 黄色文字（.opening-crawl、色は.opening-layerのcolor:#ff6を継承）が

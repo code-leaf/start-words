@@ -103,4 +103,20 @@ export const modalContents: Record<ModalType, ModalContentConfig> = {
     ],
     closeOnOverlayClick: true,
   },
+
+  // オープニング演出開始前のBGM再生確認モーダル定義 (MVP15)
+  // 自動再生・手動再生のどちらの起点でも同じ定義を使い回す（OpeningLauncher側で分岐しない）。
+  // オーバーレイクリックでの閉じるは無効化し、必ず3択のいずれかを選ばせる
+  // （score同様、なし崩しに閉じられると「未選択のまま演出が始まる/始まらない」という
+  // 中途半端な状態が生まれてしまうため）。
+  openingAudioChoice: {
+    title: "オープニング演出",
+    message: "BGMを再生しますか？",
+    buttons: [
+      { label: "🔊 音声ありで再生", colorVariant: "success", actionKey: "audioOn" },
+      { label: "🔇 音なしで再生", colorVariant: "primary", actionKey: "audioOff" },
+      { label: "スキップ", colorVariant: "neutral", actionKey: "skip" },
+    ],
+    closeOnOverlayClick: false,
+  },
 };
