@@ -127,18 +127,34 @@ export function OpeningLauncher() {
         aria-label="メインメニュー"
         className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3"
       >
-        <Link href="/word" className={menuItemClass}>
+        {/*
+          prefetch={false}について:
+          これら4つはすべて認証必須ページ（proxy側でgetUser()によるセッション
+          検証・トークンリフレッシュが走る）で、かつホーム画面では4つとも
+          同時にビューポート内に収まるため、デフォルトのprefetchのままだと
+          Next.jsがこれらへのプリフェッチリクエストをほぼ同時に発行してしまう。
+          Supabaseのリフレッシュトークンはローテーション式（1回使うと無効化）
+          のため、アクセストークンの期限が近いタイミングでこの同時プリフェッチ
+          が発生すると、複数のリクエストが同じリフレッシュトークンを取り合って
+          一部が失敗し、そのページ向けに「/loginへのリダイレクト」というプリ
+          フェッチ結果がキャッシュされてしまう。その状態でユーザーが実際にボタン
+          をクリックすると、ログイン済みにもかかわらずキャッシュされた古い
+          リダイレクト結果によってログイン画面へ飛ばされる。
+          prefetchを無効化し、クリック時にのみ1リクエストで遷移させることで
+          この競合を避ける。
+        */}
+        <Link href="/word" prefetch={false} className={menuItemClass}>
           <span className={menuLabelClass}>単語帳</span>
           <span className={menuLabelClass}>フラッシュカード</span>
         </Link>
-        <Link href="/errata" className={menuItemClass}>
+        <Link href="/errata" prefetch={false} className={menuItemClass}>
           <span className={menuLabelClass}>穴埋め</span>
           <span className={menuLabelClass}>フラッシュカード</span>
         </Link>
-        <Link href="/register" className={menuItemClass}>
+        <Link href="/register" prefetch={false} className={menuItemClass}>
           <span className={menuLabelClass}>単語登録</span>
         </Link>
-        <Link href="/mypage" className={menuItemClass}>
+        <Link href="/mypage" prefetch={false} className={menuItemClass}>
           <span className={menuLabelClass}>マイページ</span>
         </Link>
         <button
