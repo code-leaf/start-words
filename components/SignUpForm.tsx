@@ -113,6 +113,7 @@ export function SignUpForm() {
         <input
           id="email"
           type="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isSubmitting}
@@ -131,6 +132,7 @@ export function SignUpForm() {
         <input
           id="password"
           type="password"
+          autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={isSubmitting}
@@ -149,6 +151,7 @@ export function SignUpForm() {
         <input
           id="username"
           type="text"
+          autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={isSubmitting}
